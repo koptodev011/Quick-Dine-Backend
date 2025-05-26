@@ -1,13 +1,23 @@
 // middleware/uploadMiddleware.js
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs/promises';
 
-// Configure storage
+// Configure multer for file upload
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/profiles/');
+  destination: async (req, file, cb) => {
+    const uploadDir = 'uploads';
+    const categoryDir = req.body.category || 'misc';
+    const fullPath = path.join(uploadDir, categoryDir);
+    
+    try {
+      await fs.mkdir(fullPath, { recursive: true });
+      cb(null, fullPath);
+    } catch (error) {
+      cb(error);
+    }
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
@@ -15,15 +25,16 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Not an image! Please upload an image.'), false);
+    cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'), false);
   }
 };
 
-// Create the multer instance
-const upload = multer({
+// Create multer instance
+export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
@@ -31,4 +42,29 @@ const upload = multer({
   }
 });
 
-export default upload;
+// Helper function to handle file uploads
+export const uploadFile = async (file, category = 'misc') => {
+  try {
+    const uploadDir = 'uploads';
+    const categoryDir = category;
+    const fullPath = path.join(uploadDir, categoryDir);
+    
+    await fs.mkdir(fullPath, { recursive: true });
+    
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
+    const filePath = path.join(categoryDir, filename);
+    
+    await fs.rename(file.path, path.join(uploadDir, filePath));
+    
+    return {
+      success: true,
+      path: filePath
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};

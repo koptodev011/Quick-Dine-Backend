@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
+import tenantRoutes from "./routes/tenantRoutes.js";
 import initRoles from "./config/initRoles.js";
 import syncDatabase from "./config/syncDatabase.js";
 
@@ -18,6 +19,7 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/tenants", tenantRoutes);
 
 app.get("/", (req, res) => {
   res.send("Quick Dine Backend Running");

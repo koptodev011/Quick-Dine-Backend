@@ -1,7 +1,7 @@
 // routes/userRoutes.js
 import express from "express";
 import { login, register } from "../controllers/authController.js";
-import upload from "../middleware/uploadMiddleware.js";
+import { upload } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
