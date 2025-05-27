@@ -3,6 +3,8 @@ import Tenant from './tenantModel.js';
 import TenantUnit from './tenantUnitModel.js';
 import UserTenantUnit from './userTenantUnitModel.js';
 import User from './userModel.js';
+import Country from './countryModel.js';
+import State from './stateModel.js';
 
 // Tenant relationships
 Tenant.hasMany(TenantUnit, {
@@ -37,9 +39,23 @@ TenantUnit.belongsToMany(User, {
   as: 'users'
 });
 
+// Country relationships
+Country.hasMany(State, {
+  foreignKey: 'country_id',
+  as: 'states'
+});
+
+// State relationships
+State.belongsTo(Country, {
+  foreignKey: 'country_id',
+  as: 'state_country'
+});
+
 export {
   Tenant,
   TenantUnit,
   UserTenantUnit,
-  User
+  User,
+  Country,
+  State
 };
