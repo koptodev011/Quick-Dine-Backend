@@ -2,6 +2,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import Tenant from './tenantModel.js';
+import State from './stateModel.js';
+import Country from './countryModel.js';
 
 const TenantUnit = sequelize.define('TenantUnit', {
   id: {
@@ -59,11 +61,19 @@ const TenantUnit = sequelize.define('TenantUnit', {
   },
   state_id: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: State,
+      key: 'id'
+    }
   },
   country_id: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: Country,
+      key: 'id'
+    }
   },
   image: {
     type: DataTypes.STRING,
@@ -93,10 +103,20 @@ const TenantUnit = sequelize.define('TenantUnit', {
   deletedAt: 'deleted_at'
 });
 
-// Define relationship with Tenant
+// Define relationships
 TenantUnit.belongsTo(Tenant, {
   foreignKey: 'tenant_id',
   as: 'tenant'
+});
+
+TenantUnit.belongsTo(State, {
+  foreignKey: 'state_id',
+  as: 'unit_state'
+});
+
+TenantUnit.belongsTo(Country, {
+  foreignKey: 'country_id',
+  as: 'unit_country'
 });
 
 export default TenantUnit;
