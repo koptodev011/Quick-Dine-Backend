@@ -12,7 +12,7 @@ import "../models/index.js"; // Import relationships
 const syncDatabase = async () => {
   try {
     // This will create/update all tables
-    await sequelize.sync({ force: true }); // This will recreate all tables
+    await sequelize.sync({ alter: true }); // This will update tables while preserving data
     console.log("✅ All database tables were synchronized successfully.");
   } catch (error) {
     console.error("❌ Error synchronizing database:", error);

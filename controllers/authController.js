@@ -36,6 +36,21 @@ export const login = async (req, res) => {
 };
 
 // Register Function
+// Get All Users Function
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
+    res.status(200).json({
+      message: "Users retrieved successfully",
+      users
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export const register = async (req, res) => {
   const { name, email, phone, password } = req.body;
 

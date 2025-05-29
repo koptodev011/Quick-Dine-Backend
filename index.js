@@ -22,6 +22,7 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/tenants", tenantRoutes);
 app.use("/api/addtenants", tenantRoutes);
 app.use("/api/getalltenants", tenantRoutes);
 app.use("/api/updatetenant", tenantRoutes);
