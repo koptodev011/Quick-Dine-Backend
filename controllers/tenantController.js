@@ -163,6 +163,37 @@ export const editTenant = async (req, res) => {
 };
 
 // Add new tenant unit with form data
+// Get tenant by ID
+export const getTenantById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const tenant = await Tenant.findOne({
+      where: { id, active: true },
+      attributes: ['id', 'name', 'website', 'gst', 'image', 'meta', 'created_at', 'updated_at']
+    });
+
+    if (!tenant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tenant not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Tenant retrieved successfully',
+      data: tenant
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving tenant',
+      error: error.message
+    });
+  }
+};
+
 export const addTenantUnit = async (req, res) => {
   try {
     const {
@@ -177,7 +208,8 @@ export const addTenantUnit = async (req, res) => {
       longitude,
       altitude,
       state_id,
-      country_id
+      country_id,
+      tenant_id
     } = req.body;
 
     // Validate required fields
@@ -198,8 +230,13 @@ export const addTenantUnit = async (req, res) => {
       }
     }
 
-    // For now, using a default tenant_id of 1
-    const tenant_id = 1;
+    // Validate tenant_id
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'tenant_id is required'
+      });
+    }
 
     // Create tenant unit with tenant_id
     const tenantUnit = await TenantUnit.create({

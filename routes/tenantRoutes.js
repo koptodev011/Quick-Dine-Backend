@@ -1,6 +1,6 @@
 // routes/tenantRoutes.js
 import express from 'express';
-import { createTenant, validateTenantData, getTenants, editTenant, addTenantUnit } from '../controllers/tenantController.js';
+import { createTenant, validateTenantData, getTenants, editTenant, addTenantUnit, getTenantById } from '../controllers/tenantController.js';
 import { upload } from '../middleware/uploadMiddleware.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
@@ -16,6 +16,11 @@ router.post('/',
 // Get all tenants (no auth required)
 router.get('/',
   getTenants
+);
+
+// Get tenant by ID (no auth required)
+router.get('/:id',
+  getTenantById
 );
 
 // Edit tenant data (no auth required)
