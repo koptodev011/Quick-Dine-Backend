@@ -54,231 +54,72 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// export const register = async (req, res) => {
-//   try {
-//     console.log('Full request body:', JSON.stringify(req.body, null, 2));
-//     console.log('Request file:', req.file);
 
-//     // Parse form data
-//     const { name, email, password, phone } = req.body;
-    
-//     // Get tenant IDs from form data
-//     const tenantIds = [];
-    
-//     // Log all keys in the request body
-//     console.log('All form field keys:', Object.keys(req.body));
-    
-//     // First check for tenant_id[index] format (singular)
-//     let index = 0;
-//     while (req.body[`tenant_id[${index}]`] !== undefined) {
-//       const tenantId = req.body[`tenant_id[${index}]`];
-//       console.log(`Found tenant_id[${index}]:`, tenantId, 'type:', typeof tenantId);
-//       tenantIds.push(tenantId);
-//       index++;
-//     }
-    
-//     // Log the final tenant IDs array
-//     console.log('Final tenant IDs array:', tenantIds, 'length:', tenantIds.length);
-    
-//     // If no tenant_id[index] found, try tenant_ids[index] format (plural)
-//     if (tenantIds.length === 0) {
-//       index = 0;
-//       while (req.body[`tenant_ids[${index}]`]) {
-//         tenantIds.push(req.body[`tenant_ids[${index}]`]);
-//         index++;
-//       }
-//     }
-    
-//     // If still no IDs found, try other formats
-//     if (tenantIds.length === 0 && req.body.tenant_ids) {
-//       if (typeof req.body.tenant_ids === 'string') {
-//         try {
-//           const parsedIds = JSON.parse(req.body.tenant_ids);
-//           if (Array.isArray(parsedIds)) {
-//             tenantIds.push(...parsedIds);
-//           } else {
-//             tenantIds.push(parsedIds);
-//           }
-//         } catch (e) {
-//           tenantIds.push(req.body.tenant_ids);
-//         }
-//       } else if (Array.isArray(req.body.tenant_ids)) {
-//         tenantIds.push(...req.body.tenant_ids);
-//       }
-//     }
-    
-//     // Finally try single tenant_id field
-//     if (tenantIds.length === 0 && req.body.tenant_id) {
-//       tenantIds.push(req.body.tenant_id);
-//     }
 
-//     console.log('Parsed tenant IDs:', tenantIds);
 
-//     // Validate required fields
-//     if (!name || !email || !password || !phone || tenantIds.length === 0) {
-//       return res.status(400).json({ 
-//         message: "Please provide all required fields: name, email, password, phone, and at least one tenant_id" 
-//       });
-//     }
 
-//     // Get profile photo path if uploaded
-//     const profilePhotoPath = req.file ? req.file.path : null;
 
-//     const existingUser = await User.findOne({ where: { email } });
-//     if (existingUser) {
-//       return res.status(400).json({ message: "User already exists" });
-//     }
 
-//     const hashedPassword = await bcrypt.hash(password, 10);
-    
-//     // Create user in transaction to ensure all operations succeed or none
-//     const result = await sequelize.transaction(async (t) => {
-//       console.log('Starting transaction...');
-//       // Create a new user
-//       const newUser = await User.create({
-//         name,
-//         email,
-//         password: hashedPassword,
-//         phone,
-//         profilePhoto: profilePhotoPath
-//       }, { transaction: t });
 
-//       // Create user-tenant relationships
-//       if (tenantIds.length > 0) {
-//         console.log('Creating tenant relationships for user:', newUser.id);
-//         console.log('Tenant IDs to process:', tenantIds);
-        
-//         // Create an array of records for each tenant ID
-//         const userTenantRecords = [];
-//         for (const tenant_id of tenantIds) {
-//           const record = {
-//             user_id: newUser.id,
-//             tenant_id: parseInt(tenant_id), // Convert to integer
-//             active: true,
-//             meta: null
-//           };
-//           console.log('Creating record:', record);
-//           userTenantRecords.push(record);
-//         }
 
-//         console.log('Final records to create:', JSON.stringify(userTenantRecords, null, 2));
-        
-//         try {
-//           // First, verify we can find the tenant IDs
-//           for (const record of userTenantRecords) {
-//             const tenant = await Tenant.findByPk(record.tenant_id, { transaction: t });
-//             if (!tenant) {
-//               throw new Error(`Tenant with ID ${record.tenant_id} not found`);
-//             }
-//             console.log(`Verified tenant ${record.tenant_id} exists`);
-//           }
 
-//           // Create all records in a single transaction
-//           const createdRecords = await UserTenantUnit.bulkCreate(userTenantRecords, { 
-//             transaction: t,
-//             validate: true // Enable validation
-//           });
-          
-//           console.log('Successfully created user tenant records:', createdRecords.length);
-          
-//           // Verify all records were created
-//           const verifyRecords = await UserTenantUnit.findAll({
-//             where: { user_id: newUser.id },
-//             transaction: t
-//           });
-//           console.log('Verified records in database:', JSON.stringify(verifyRecords.map(r => r.toJSON()), null, 2));
-//         } catch (err) {
-//           console.error('Error creating user tenant records:', err);
-//           throw err;
-//         }
-//       }
 
-//       const token = jwt.sign(
-//         { id: newUser.id, email: newUser.email },
-//         process.env.JWT_SECRET,
-//         { expiresIn: "1d" }
-//       );
 
-//       return { newUser, token };
-//     });
 
-//     res.status(201).json({
-//       message: "User registered successfully",
-//       token: result.token,
-//       user: {
-//         id: result.newUser.id,
-//         name: result.newUser.name,
-//         email: result.newUser.email,
-//         phone: result.newUser.phone,
-//         profilePhoto: result.newUser.profilePhoto,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
+
+
+
 
 
 export const register = async (req, res) => {
   try {
-    console.log('Full request body:', JSON.stringify(req.body, null, 2));
-    console.log('Request file:', req.file);
+    // Debug logging
+    console.log('=== DEBUG START ===');
+    console.log('Request body:', req.body);
+    console.log('Body type:', typeof req.body);
+    console.log('Body keys:', Object.keys(req.body));
+    console.log('Raw body:', JSON.stringify(req.body, null, 2));
+    console.log('=== DEBUG END ===');
 
+    // Extract user data
     const { name, email, password, phone } = req.body;
 
-    // Parse and normalize tenant IDs
-    const tenantIds = [];
-    let index = 0;
-
-    // Handle tenant_id[0], tenant_id[1], ...
-    while (req.body[`tenant_id[${index}]`] !== undefined) {
-      tenantIds.push(parseInt(req.body[`tenant_id[${index}]`])); // parse to int
-      index++;
-    }
-
-    // Fallbacks if tenant_id[0] format not found
-    if (tenantIds.length === 0 && req.body.tenant_ids) {
-      if (typeof req.body.tenant_ids === 'string') {
-        try {
-          const parsed = JSON.parse(req.body.tenant_ids);
-          if (Array.isArray(parsed)) {
-            tenantIds.push(...parsed.map(id => parseInt(id)));
-          } else {
-            tenantIds.push(parseInt(parsed));
-          }
-        } catch (e) {
-          tenantIds.push(parseInt(req.body.tenant_ids));
-        }
-      } else if (Array.isArray(req.body.tenant_ids)) {
-        tenantIds.push(...req.body.tenant_ids.map(id => parseInt(id)));
-      }
-    }
-
-    if (tenantIds.length === 0 && req.body.tenant_id) {
-      tenantIds.push(parseInt(req.body.tenant_id));
-    }
-
-    // Remove duplicates
-    const uniqueTenantIds = [...new Set(tenantIds)];
-    console.log('Final unique tenant IDs:', uniqueTenantIds);
-
-    // Validate required fields
-    if (!name || !email || !password || !phone || uniqueTenantIds.length === 0) {
+    // Validate required user fields
+    if (!name || !email || !password || !phone) {
       return res.status(400).json({ 
-        message: "Please provide all required fields: name, email, password, phone, and at least one tenant_id" 
+        message: "Please provide all required fields: name, email, password, and phone" 
       });
     }
 
-    const profilePhotoPath = req.file ? req.file.path : null;
-
+    // Check for existing user
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
+      // If file was uploaded but user exists, we should clean it up
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (unlinkError) {
+          console.error('Error deleting uploaded file:', unlinkError);
+        }
+      }
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // Handle profile photo
+    let profilePhotoPath = null;
+    if (req.file) {
+      // Convert backslashes to forward slashes for consistency
+      profilePhotoPath = req.file.path.replace(/\\/g, '/');
+      console.log('Profile photo uploaded:', profilePhotoPath);
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Start transaction
     const result = await sequelize.transaction(async (t) => {
+
+      console.log('Creating user with data:', { name, email, phone });
       const newUser = await User.create({
         name,
         email,
@@ -286,34 +127,76 @@ export const register = async (req, res) => {
         phone,
         profilePhoto: profilePhotoPath
       }, { transaction: t });
+      console.log('User created with ID:', newUser.id);
 
-      // Validate all tenant IDs
-      const tenantChecks = await Promise.all(
-        uniqueTenantIds.map(id => Tenant.findByPk(id, { transaction: t }))
-      );
-      const missingTenants = tenantChecks
-        .map((tenant, i) => (!tenant ? uniqueTenantIds[i] : null))
-        .filter(id => id !== null);
-
-      if (missingTenants.length > 0) {
-        throw new Error(`Tenant(s) not found with IDs: ${missingTenants.join(', ')}`);
+      // Step 2: Handle tenant IDs
+      const tenantIds = [];
+      
+      console.log('=== TENANT ID PROCESSING ===');
+      // Try to get tenant IDs from form data
+      if (req.body) {
+        Object.entries(req.body).forEach(([key, value]) => {
+          console.log(`Key: ${key}, Value: ${value}, Type: ${typeof value}`);
+          
+          // Try to extract index from the key
+          const index = key.match(/\d+/);
+          if (key.includes('tenant_id') && index) {
+            const parsedValue = parseInt(value);
+            console.log(`Found tenant_id key: ${key}, Value: ${value}, Parsed: ${parsedValue}`);
+            if (!isNaN(parsedValue)) {
+              tenantIds.push(parsedValue);
+              console.log(`Added tenant ID: ${parsedValue}`);
+            }
+          }
+        });
       }
 
-      const userTenantRecords = uniqueTenantIds.map(tenant_id => ({
+      console.log('Final tenant IDs:', tenantIds);
+      console.log('=== END TENANT ID PROCESSING ===');
+
+      if (tenantIds.length === 0) {
+        throw new Error('At least one tenant ID is required');
+      }
+
+      // Step 3: Verify all tenants exist
+      for (const tenantId of tenantIds) {
+        const tenant = await Tenant.findByPk(tenantId, { transaction: t });
+        if (!tenant) {
+          throw new Error(`Tenant with ID ${tenantId} not found`);
+        }
+        console.log(`Verified tenant ${tenantId} exists`);
+      }
+
+      // Step 4: Create user-tenant relationships
+      console.log('Creating relationships for tenant IDs:', tenantIds);
+      
+      const userTenantRecords = tenantIds.map(tenantId => ({
         user_id: newUser.id,
-        tenant_id,
+        tenant_id: tenantId,
         active: true,
-        meta: null,
-        tenant_unit_id: null // explicitly set if nullable
+        meta: null
       }));
 
-      console.log('Records to insert:', userTenantRecords);
-
-      await UserTenantUnit.bulkCreate(userTenantRecords, {
+      console.log('User-tenant records to create:', userTenantRecords);
+      
+      // Create all tenant relationships
+      const createdRecords = await UserTenantUnit.bulkCreate(userTenantRecords, {
         transaction: t,
-        validate: true
+        validate: true,
+        returning: true
       });
+      
+      console.log('Created records:', createdRecords.length);
+      console.log('User-tenant relationships created successfully');
+      
+      // Double check the created records
+      const verifyRecords = await UserTenantUnit.findAll({
+        where: { user_id: newUser.id },
+        transaction: t
+      });
+      console.log('Verified created records count:', verifyRecords.length);
 
+      // Generate JWT token
       const token = jwt.sign(
         { id: newUser.id, email: newUser.email },
         process.env.JWT_SECRET,
@@ -323,6 +206,7 @@ export const register = async (req, res) => {
       return { newUser, token };
     });
 
+    // Send success response
     res.status(201).json({
       message: "User registered successfully",
       token: result.token,
@@ -331,11 +215,32 @@ export const register = async (req, res) => {
         name: result.newUser.name,
         email: result.newUser.email,
         phone: result.newUser.phone,
-        profilePhoto: result.newUser.profilePhoto,
+        profilePhoto: result.newUser.profilePhoto
       },
     });
   } catch (error) {
+    // If there was an error and a file was uploaded, clean it up
+    if (req.file) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting uploaded file:', unlinkError);
+      }
+    }
+
     console.error("Registration error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+
+    // Send appropriate error message
+    if (error.message.includes('Invalid file type')) {
+      res.status(400).json({ 
+        message: "Registration failed", 
+        error: "Profile photo must be JPEG, PNG or GIF format"
+      });
+    } else {
+      res.status(500).json({ 
+        message: "Registration failed", 
+        error: error.message 
+      });
+    }
   }
 };
