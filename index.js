@@ -15,6 +15,17 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Create uploads directory if it doesn't exist
+import { mkdir } from 'fs/promises';
+try {
+  await mkdir('uploads/profile-photos', { recursive: true });
+} catch (err) {
+  if (err.code !== 'EEXIST') {
+    console.error('Error creating uploads directory:', err);
+  }
+}
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
