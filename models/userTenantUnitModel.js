@@ -2,7 +2,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import User from './userModel.js';
-import TenantUnit from './tenantUnitModel.js';
+import Tenant from './tenantModel.js';
 
 const UserTenantUnit = sequelize.define('UserTenantUnit', {
   id: {
@@ -18,14 +18,15 @@ const UserTenantUnit = sequelize.define('UserTenantUnit', {
       key: 'id'
     }
   },
-  tenant_unit_id: {
+  tenant_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: TenantUnit,
+      model: Tenant,
       key: 'id'
     }
   },
+
   active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
@@ -39,6 +40,7 @@ const UserTenantUnit = sequelize.define('UserTenantUnit', {
     allowNull: true
   }
 }, {
+  tableName: 'UserTenantUnits',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
@@ -52,9 +54,9 @@ UserTenantUnit.belongsTo(User, {
   as: 'user'
 });
 
-UserTenantUnit.belongsTo(TenantUnit, {
-  foreignKey: 'tenant_unit_id',
-  as: 'tenantUnit'
+UserTenantUnit.belongsTo(Tenant, {
+  foreignKey: 'tenant_id',
+  as: 'tenant'
 });
 
 export default UserTenantUnit;
