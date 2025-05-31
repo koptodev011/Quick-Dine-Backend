@@ -6,6 +6,7 @@ import roleRoutes from "./routes/roleRoutes.js";
 import tenantRoutes from "./routes/tenantRoutes.js";
 import tenantUnitRoutes from "./routes/tenantUnitRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 import initRoles from "./config/initRoles.js";
 import initLocations from "./config/initLocations.js";
 import syncDatabase from "./config/syncDatabase.js";
@@ -39,6 +40,7 @@ app.use("/api/getalltenants", tenantRoutes);
 app.use("/api/updatetenant", tenantRoutes);
 app.use("/api/tenantunit", tenantUnitRoutes);
 app.use("/api/location", locationRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (req, res) => {
   res.send("Quick Dine Backend Running");
