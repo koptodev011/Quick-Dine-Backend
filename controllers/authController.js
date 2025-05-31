@@ -54,6 +54,57 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Get User's Tenants
+export const getUserTenants = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+
+    // Validate user ID
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    // Check if user exists
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'name', 'email', 'phone', 'profilePhoto']
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Get user's tenants
+    const userTenants = await UserTenantUnit.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: Tenant,
+          as: 'tenant',
+          attributes: ['id', 'name', 'image', 'website', 'active', 'gst']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.status(200).json({
+      message: "User's tenants retrieved successfully",
+      user: user,
+      tenants: userTenants.map(ut => ({
+        ...ut.tenant.dataValues,
+        active: ut.active,
+        joinedAt: ut.createdAt
+      }))
+    });
+
+  } catch (error) {
+    console.error("Error fetching user's tenants:", error);
+    res.status(500).json({ 
+      message: "Error fetching user's tenants", 
+      error: error.message 
+    });
+  }
+};
+
 
 
 
